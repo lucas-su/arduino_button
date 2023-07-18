@@ -4,11 +4,7 @@
  */
 
 #include <ros.h>
-#include <std_msgs/Bool.h>
 #include <std_msgs/Int16MultiArray.h>
-#include <std_msgs/Int16.h>
-
-// ros::init("arduino_button");
 
 ros::NodeHandle  nh;
 
@@ -18,25 +14,16 @@ std_msgs::Int16MultiArray button_state;
 int i;
 
 
-void updateLeds(const std_msgs::Int16& leds){
+void updateLeds(const std_msgs::Int16MultiArray& leds){
   // leds and ledlist should be the same length
   for (i=0;i<sizeof(leds);i++){
-    digitalWrite(ledlist[i],leds.data);
+    digitalWrite(ledlist[i],leds.data[i]);
   }
 }
 
-
-// ros::Subscriber<int[sizeof(ledlist)]> ledstate("ledstate", 1000, updateLeds); 
 ros::Subscriber<std_msgs::Int16MultiArray> ledstate("ledstate", 1000, updateLeds); 
-// nh.subscribe("ledstate", 1000, updateLeds);
-
-
-// std_msgs::Int32 btn_msg;
 
 ros::Publisher buttonstate("buttonstate",1000, &button_state);
-// ros::Publisher buttonstate = nh.advertise<std_msgs::Int32>("buttonstate", 1000);
-
-// char hello[13] = "hello world!";
 
 void setup()
 {
@@ -57,7 +44,7 @@ void loop()
   for (i=0;i<sizeof(buttonlist);i++){
     button_state.data[i]=digitalRead(i);
   }
-  // str_msg.data = hello;
+  
   buttonstate.publish( &button_state );
   nh.spinOnce();
   delay(500);
