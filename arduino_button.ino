@@ -17,13 +17,14 @@ int buttonpins[16] =  {53,51,49,47,45,43,41,39,37,35,33,31,29,27,25,23};
 void updateLeds(wham::ledlist* leds){
   // leds and ledlist should be the same length
   for (int i=0;i<16;i++){
-    digitalWrite(ledpins[i],leds->leds[i]);
+    digitalWrite(ledpins[i],bool(leds->leds[i]));
+    
   }
 }
-ros::Subscriber<wham::ledlist> ledstate("ledstate", updateLeds); 
+ros::Subscriber<wham::ledlist> ledstate("/ledstate", updateLeds); 
 
 wham::buttonlist button_state;
-ros::Publisher button_pub("buttonstate", &button_state);
+ros::Publisher button_pub("/buttonstate", &button_state);
 
 void setup()
 {
@@ -46,7 +47,7 @@ void setup()
 void loop()
 {
   for (int i=0;i<16;i++){
-    button_state.buttons[i]= digitalRead(buttonpins[i]);
+    button_state.buttons[i]= digitalRead(buttonpins[i])?0:1;
   }
   button_pub.publish(&button_state); // publish the adress of button_state..?
   nh.spinOnce();
